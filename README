@@ -1,5 +1,5 @@
 Fitzgerald is a tiny PHP framework that was inspired oh so heavily by the wondrous Sinatra of the Ruby world.
 
-See example.php for a look at how to use Fitzgerald, and read the blog post:
+See example.php for a look at how to use Fitzgerald, and read the blog post: http://autonomousmachine.com/2008/11/21/fitzgerald-a-sinatra-clone-in-php
 
 Have fun!
