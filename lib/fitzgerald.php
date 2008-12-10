@@ -1,8 +1,13 @@
 <?php
 
-    // This is the only file you really need! The directory structur of this repo is a suggestion,
+    // This is the only file you really need! The directory structure of this repo is a suggestion,
     // not a requirement! It's your app.
- 
+
+
+    /*  Fitzgerald - a single file PHP framework
+     *  (c) 2008 Jim Benton, released under the MIT license
+     */
+     
     class Template {
         private $fileName;
         private $root;
@@ -25,6 +30,7 @@
         private $method;
         private $conditions;
         
+        private $filters = array();
         public $params = array();
         public $match = false;
         
@@ -136,19 +142,30 @@
            $this->event('post', $url, $methodName, $conditions);
         }
     
+        public function before($methodName, $filterName) {
+            if (!is_array($methodName)) {
+                $methodName = explode('|', $methodName);
+            }
+            for ($i = 0; $i < count($methodName); $i++) {
+                $method = $methodName[$i];
+                if (!isset($this->filters[$method])) {
+                    $this->filters[$method] = array();
+                }
+                array_push($this->filters[$method], $filterName);
+            }
+        }
+    
         public function run() {
             echo $this->processRequest();
         }
     
         protected function redirect($path) {
-            $host  = $_SERVER['HTTP_HOST'];
-            if (is_string($this->options->mointPoint)) {
-                $uri = $this->options->mountPoint;
-            } else {
-                $uri = '';
-            }
+            $protocol = $_SERVER['HTTPS'] ? 'https' : 'http';
+            $host = (preg_match('%^http://|https://%', $path) > 0) ? '' : "$protocol://" . $_SERVER['HTTP_HOST'];
+            $uri = is_string($this->options->mointPoint) ? $this->options->mountPoint : '';
             $this->session->error = $this->error;
-            return header("Location: http://$host$uri$path");
+            header("Location: $host$uri$path");
+            return false;
         }
     
         protected function render($fileName, $variableArray=array()) {
@@ -176,7 +193,15 @@
         }
 
         private function execute($methodName, $params) {
-
+            if (isset($this->filters[$methodName])) {
+                for ($i=0; $i < count($this->filters[$methodName]); $i++) {
+                    $return = call_user_func(array($this, $this->filters[$methodName][$i]));
+                    if (!is_null($return)) {
+                        return $return;
+                    }
+                }
+            }
+            
             if ($this->session->error) {
                 $this->error = $this->session->error;
                 $this->session->error = null;                
@@ -214,7 +239,7 @@
                     return $this->execute($mapping[2], $url->params);
                 }
             }
-            $this->render('404');
+            return $this->render('404');
         }
     
     }
