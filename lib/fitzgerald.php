@@ -1,13 +1,13 @@
 <?php
 
     // This is the only file you really need! The directory structure of this repo is a suggestion,
-    // not a requirement! It's your app.
+    // not a requirement. It's your app.
 
 
     /*  Fitzgerald - a single file PHP framework
      *  (c) 2008 Jim Benton, released under the MIT license
      */
-     
+
     class Template {
         private $fileName;
         private $root;
@@ -112,7 +112,7 @@
             return $value;
         }
     }
-
+    
     class Fitzgerald {
         
         private $mappings = array();
@@ -191,12 +191,22 @@
             header("Content-Disposition: attachment; filename=$filename");
             return readfile($path);
         }
+        
+        protected function sendDownload($filename, $path) {
+            header("Content-Type: application/force-download");
+            header("Content-Type: application/octet-stream");
+            header("Content-Type: application/download");
+            header("Content-Description: File Transfer");
+            header("Content-Disposition: attachment; filename=$filename".";");
+            header("Content-Transfer-Encoding: binary");
+            return readfile($path);
+        }
 
         private function execute($methodName, $params) {
             if (isset($this->filters[$methodName])) {
                 for ($i=0; $i < count($this->filters[$methodName]); $i++) {
                     $return = call_user_func(array($this, $this->filters[$methodName][$i]));
-                    if (!is_null($return)) {
+                    if ($return) {
                         return $return;
                     }
                 }
