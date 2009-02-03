@@ -31,11 +31,16 @@
         }
         
         public function get_secret($page) {
-            if ($this->isLoggedIn()) {
-                return $this->redirect('/login');
-            }
             $secretMessage = 'Psst!';
             return $this->render($page, compact('secretMessage'));
+        }
+        
+        // before filters
+        
+        protected function verify_user() {
+            if (is_null($this->session->user) || @$this->isValidUser($this->session->user)) {
+                return $this->redirect('/login');
+            }
         }
         
         // Helper methods
@@ -66,6 +71,9 @@
     
     // Layout is the only option right now, but you can add your own via subclassing
     $app = new ApplicationWithLogin(array('layout' => 'login'));
+    
+    // Define a before filter to be executed before one or more actions
+    $app->before('get_secret|another_action', 'verify_user');    
     
     // Basic mappings specify which function is called for a matching URL
     $app->get('/', 'get_index');
