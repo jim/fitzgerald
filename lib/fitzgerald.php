@@ -17,9 +17,7 @@
             $this->root = $root;
         }
         public function render($locals) {
-            foreach ($locals as $local => $value) {
-                $$local = $value;
-            }
+            extract($locals);
             ob_start();
             include($this->root . 'views/' . $this->fileName . '.php');
             return ob_get_clean();
