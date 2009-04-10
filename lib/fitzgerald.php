@@ -175,8 +175,9 @@
         }
 
         protected function render($fileName, $variableArray=array()) {
-            $variableArray['session'] = $this->session;
+            $variableArray['options'] = $this->options;
             $variableArray['request'] = $this->request;
+            $variableArray['session'] = $this->session;
             if(isset($this->error)) {
                 $variableArray['error'] = $this->error;
             }
@@ -258,5 +259,3 @@
             return $this->show404();
         }
     }
-
-?>
