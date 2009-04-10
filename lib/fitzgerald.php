@@ -168,7 +168,7 @@
         protected function redirect($path) {
             $protocol = $_SERVER['HTTPS'] ? 'https' : 'http';
             $host = (preg_match('%^http://|https://%', $path) > 0) ? '' : "$protocol://" . $_SERVER['HTTP_HOST'];
-            $uri = is_string($this->options->mointPoint) ? $this->options->mountPoint : '';
+            $uri = is_string($this->options->mountPoint) ? $this->options->mountPoint : '';
             $this->session->error = $this->error;
             header("Location: $host$uri$path");
             return false;
