@@ -170,6 +170,7 @@
             $host = (preg_match('%^http://|https://%', $path) > 0) ? '' : "$protocol://" . $_SERVER['HTTP_HOST'];
             $uri = is_string($this->options->mountPoint) ? $this->options->mountPoint : '';
             $this->session->error = $this->error;
+            $this->session->success = $this->success;
             header("Location: $host$uri$path");
             return false;
         }
@@ -180,6 +181,9 @@
             $variableArray['session'] = $this->session;
             if(isset($this->error)) {
                 $variableArray['error'] = $this->error;
+            }
+            if(isset($this->success)) {
+                $variableArray['success'] = $this->success;
             }
 
             if (is_string($this->options->layout)) {
@@ -223,8 +227,12 @@
                 $this->error = $this->session->error;
                 $this->session->error = null;
             }
+            if ($this->session->success) {
+                $this->success = $this->session->success;
+                $this->session->success = null;
+            }
 
-            $reflection = new ReflectionMethod('Application', $methodName);
+            $reflection = new ReflectionMethod(get_class($this), $methodName);
             $args = array();
 
             foreach ($reflection->getParameters() as $i => $param) {
