@@ -9,7 +9,7 @@
 
     $app = new Application();
 
-    // Define your url mappings. TAke advantage of placeholders and regexes for safety.
+    // Define your url mappings. Take advantage of placeholders and regexes for safety.
 
     $app->run();
 ?>

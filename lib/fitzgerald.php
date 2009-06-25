@@ -217,7 +217,7 @@
             if (isset($this->filters[$methodName])) {
                 for ($i=0; $i < count($this->filters[$methodName]); $i++) {
                     $return = call_user_func(array($this, $this->filters[$methodName][$i]));
-                    if ($return) {
+                    if (!is_null($return)) {
                         return $return;
                     }
                 }
