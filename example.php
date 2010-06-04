@@ -38,7 +38,7 @@
         // before filters
 
         protected function verify_user() {
-            if (is_null($this->session->user) || @$this->isValidUser($this->session->user)) {
+            if (is_null($this->session->user) || !$this->isValidUser($this->session->user)) {
                 return $this->redirect('/login');
             }
         }
