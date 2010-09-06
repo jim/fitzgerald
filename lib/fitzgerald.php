@@ -49,7 +49,7 @@
 
                 preg_match_all('@:([a-zA-Z]+)@', $url, $paramNames, PREG_PATTERN_ORDER);                    // get param names
                 $paramNames = $paramNames[1];                                                               // we want the set of matches
-                $regexedUrl = preg_replace_callback('@:[a-zA-Z_]+@', array($this, 'regexValue'), $url);     // replace param with regex capture
+                $regexedUrl = preg_replace_callback('@:[a-zA-Z_\-]+@', array($this, 'regexValue'), $url);     // replace param with regex capture
                 if (preg_match('@^' . $regexedUrl . '$@', $requestUri, $paramValues)){                      // determine match and get param values
                     array_shift($paramValues);                                                              // remove the complete text match
                     for ($i=0; $i < count($paramNames); $i++) {
@@ -65,7 +65,7 @@
             if (array_key_exists($key, $this->conditions)) {
                 return '(' . $this->conditions[$key] . ')';
             } else {
-                return '([a-zA-Z0-9_]+)';
+                return '([a-zA-Z0-9_\-]+)';
             }
         }
 
