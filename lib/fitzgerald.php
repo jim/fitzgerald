@@ -115,7 +115,7 @@
     class Fitzgerald {
 
         private $mappings = array();
-        private $options;
+        protected $options;
         protected $session;
         protected $request;
 
