@@ -248,7 +248,10 @@
         }
 
         protected function root() {
-            return dirname(__FILE__) . '/../';
+            if($root = $this->options->root)
+              return $root;
+            else
+              return dirname(__FILE__) . '/../';
         }
 
         protected function path($path) {
