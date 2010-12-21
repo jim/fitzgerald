@@ -36,7 +36,7 @@
         public function __construct($httpMethod, $url, $conditions=array(), $mountPoint) {
 
             $requestMethod = $_SERVER['REQUEST_METHOD'];
-            $requestUri = str_replace($mountPoint, '', $_SERVER['REQUEST_URI']);
+            $requestUri = str_replace($mountPoint, '', preg_replace('/\?.+/', '', $_SERVER['REQUEST_URI']));
 
             $this->url = $url;
             $this->method = $httpMethod;
