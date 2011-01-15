@@ -166,11 +166,15 @@
         }
 
         protected function redirect($path) {
-            $protocol = $_SERVER['HTTPS'] ? 'https' : 'http';
+            $protocol = empty($_SERVER['HTTPS']) ? 'http' : 'https';
             $host = (preg_match('%^http://|https://%', $path) > 0) ? '' : "$protocol://" . $_SERVER['HTTP_HOST'];
             $uri = is_string($this->options->mountPoint) ? $this->options->mountPoint : '';
-            $this->session->error = $this->error;
-            $this->session->success = $this->success;
+            if (!empty($this->error)) {
+              $this->session->error = $this->error;
+            }
+            if (!empty($this->success)) {
+              $this->session->success = $this->success;
+            }
             header("Location: $host$uri$path");
             return false;
         }
