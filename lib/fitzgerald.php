@@ -5,8 +5,8 @@
 
 
     /*  Fitzgerald - a single file PHP framework
-     *  (c) 2008 Jim Benton, released under the MIT license
-     *  Version 0.2
+     *  (c) 2010 Jim Benton and contributors, released under the MIT license
+     *  Version 0.3
      */
 
     class Template {

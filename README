@@ -6,7 +6,10 @@ See example.php for a look at how to use Fitzgerald, and read the blog posts:
 Have fun!
 
 Changelog:
+0.3
+- Enabled support PUT and DELETE method request and charset header, and other changes... (andersonfraga)
 - Avoid NOTICE errors on redirect (gbirke)
 
 Contributors:
 Gabriel Birke (gbirke)
+Anderson Fraga (andersonfraga)
