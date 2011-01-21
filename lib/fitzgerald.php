@@ -19,7 +19,7 @@
         public function render($locals) {
             extract($locals);
             ob_start();
-            include($this->root . 'views/' . $this->fileName . '.php');
+            include(realpath($this->root . 'views/' . $this->fileName . '.php'));
             return ob_get_clean();
         }
     }
@@ -29,14 +29,13 @@
         private $method;
         private $conditions;
 
-        private $filters = array();
         public $params = array();
         public $match = false;
 
         public function __construct($httpMethod, $url, $conditions=array(), $mountPoint) {
 
             $requestMethod = $_SERVER['REQUEST_METHOD'];
-            $requestUri = str_replace($mountPoint, '', $_SERVER['REQUEST_URI']);
+            $requestUri = str_replace($mountPoint, '', preg_replace('/\?.+/', '', $_SERVER['REQUEST_URI']));
 
             $this->url = $url;
             $this->method = $httpMethod;
@@ -114,7 +113,7 @@
 
     class Fitzgerald {
 
-        private $mappings = array();
+        private $mappings = array(), $before_filters = Array(), $after_filters = Array();
         protected $options;
         protected $session;
         protected $request;
@@ -140,24 +139,53 @@
             die();
         }
 
-        public function get($url, $methodName, $conditions=array()) {
+        public function get($url, $methodName, $conditions = array()) {
            $this->event('get', $url, $methodName, $conditions);
         }
 
-        public function post($url, $methodName, $conditions=array()) {
+        public function post($url, $methodName, $conditions = array()) {
            $this->event('post', $url, $methodName, $conditions);
         }
 
+        public function put($url, $methodName, $conditions = array()) {
+           $this->event('put', $url, $methodName, $conditions);
+        }
+
+        public function delete($url, $methodName, $conditions = array()) {
+           $this->event('delete', $url, $methodName, $conditions);
+        }
+
         public function before($methodName, $filterName) {
+            $this->push_filter($this->before_filters, $methodName, $filterName);
+        }
+
+        public function after($methodName, $filterName) {
+            $this->push_filter($this->after_filters, $methodName, $filterName);
+        }
+
+        private function push_filter(&$arr_filter, $methodName, $filterName) {
             if (!is_array($methodName)) {
                 $methodName = explode('|', $methodName);
             }
+
             for ($i = 0; $i < count($methodName); $i++) {
                 $method = $methodName[$i];
-                if (!isset($this->filters[$method])) {
-                    $this->filters[$method] = array();
+                if (!isset($arr_filter[$method])) {
+                    $arr_filter[$method] = array();
                 }
-                array_push($this->filters[$method], $filterName);
+                array_push($arr_filter[$method], $filterName);
+            }
+        }
+
+        private function run_filter($arr_filter, $methodName) {
+            if(isset($arr_filter[$methodName])) {
+                for ($i=0; $i < count($arr_filter[$methodName]); $i++) {
+                    $return = call_user_func(array($this, $arr_filter[$methodName][$i]));
+
+                    if(!is_null($return)) {
+                        return $return;
+                    }
+                }
             }
         }
 
@@ -218,19 +246,13 @@
         }
 
         private function execute($methodName, $params) {
-            if (isset($this->filters[$methodName])) {
-                for ($i=0; $i < count($this->filters[$methodName]); $i++) {
-                    $return = call_user_func(array($this, $this->filters[$methodName][$i]));
-                    if (!is_null($return)) {
-                        return $return;
-                    }
-                }
-            }
+            $this->run_filter($this->before_filters, $methodName);
 
             if ($this->session->error) {
                 $this->error = $this->session->error;
                 $this->session->error = null;
             }
+
             if ($this->session->success) {
                 $this->success = $this->session->success;
                 $this->session->success = null;
@@ -239,10 +261,20 @@
             $reflection = new ReflectionMethod(get_class($this), $methodName);
             $args = array();
 
-            foreach ($reflection->getParameters() as $i => $param) {
-                $args[$param->name] = $params[$param->name];
+            foreach($reflection->getParameters() as $param) {
+                if(isset($params[$param->name])) {
+                    $args[$param->name] = $params[$param->name];
+                }
+                else if($param->isDefaultValueAvailable()) {
+                    $args[$param->name] = $param->getDefaultValue();
+                }
             }
-            return call_user_func_array(array($this, $methodName), $args);
+
+            $response = $reflection->invokeArgs($this, $args);
+
+            $this->run_filter($this->after_filters, $methodName);
+
+            return $response;
         }
 
         private function event($httpMethod, $url, $methodName, $conditions=array()) {
@@ -263,14 +295,19 @@
         }
 
         private function processRequest() {
-            for ($i = 0; $i < count($this->mappings); $i++) {
+            $charset = (is_string($this->options->charset)) ? ";charset={$this->options->charset}" : "";
+            header("Content-type: text/html" . $charset);
+
+            for($i = 0; $i < count($this->mappings); $i++) {
                 $mapping = $this->mappings[$i];
                 $mountPoint = is_string($this->options->mountPoint) ? $this->options->mountPoint : '';
                 $url = new Url($mapping[0], $mapping[1], $mapping[3], $mountPoint);
-                if ($url->match) {
+
+                if($url->match) {
                     return $this->execute($mapping[2], $url->params);
                 }
             }
+
             return $this->show404();
         }
     }
