@@ -246,7 +246,10 @@
         }
 
         protected function execute($methodName, $params) {
-            $this->run_filter($this->before_filters, $methodName);
+            $return = $this->run_filter($this->before_filters, $methodName);
+            if (!is_null($return)) {
+              return $return;
+            }
 
             if ($this->session->error) {
                 $this->error = $this->session->error;
@@ -272,7 +275,10 @@
 
             $response = $reflection->invokeArgs($this, $args);
 
-            $this->run_filter($this->after_filters, $methodName);
+            $return = $this->run_filter($this->after_filters, $methodName);
+            if (!is_null($return)) {
+              return $return;
+            }
 
             return $response;
         }
