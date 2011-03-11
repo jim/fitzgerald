@@ -163,7 +163,7 @@
             $this->push_filter($this->after_filters, $methodName, $filterName);
         }
 
-        private function push_filter(&$arr_filter, $methodName, $filterName) {
+        protected function push_filter(&$arr_filter, $methodName, $filterName) {
             if (!is_array($methodName)) {
                 $methodName = explode('|', $methodName);
             }
@@ -177,7 +177,7 @@
             }
         }
 
-        private function run_filter($arr_filter, $methodName) {
+        protected function run_filter($arr_filter, $methodName) {
             if(isset($arr_filter[$methodName])) {
                 for ($i=0; $i < count($arr_filter[$methodName]); $i++) {
                     $return = call_user_func(array($this, $arr_filter[$methodName][$i]));
@@ -245,7 +245,7 @@
             return readfile($path);
         }
 
-        private function execute($methodName, $params) {
+        protected function execute($methodName, $params) {
             $this->run_filter($this->before_filters, $methodName);
 
             if ($this->session->error) {
@@ -277,7 +277,7 @@
             return $response;
         }
 
-        private function event($httpMethod, $url, $methodName, $conditions=array()) {
+        protected function event($httpMethod, $url, $methodName, $conditions=array()) {
             if (method_exists($this, $methodName)) {
                 array_push($this->mappings, array($httpMethod, $url, $methodName, $conditions));
             }
@@ -294,7 +294,7 @@
             return $this->root() . $path;
         }
 
-        private function processRequest() {
+        protected function processRequest() {
             $charset = (is_string($this->options->charset)) ? ";charset={$this->options->charset}" : "";
             header("Content-type: text/html" . $charset);
 
