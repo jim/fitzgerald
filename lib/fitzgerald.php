@@ -83,6 +83,13 @@
             $this->subject[$key] = $value;
             return $value;
         }
+
+		public function __isset($key){
+			return isset($this->subject[$key]) && ( is_array($this->subject[$key]) || strlen($this->subject[$key]) > 0  );
+		}
+		public function getCount(){
+			return count($this->subject);
+		}
     }
 
     class SessionWrapper {
@@ -96,6 +103,10 @@
             $_SESSION[$key] = $value;
             return $value;
         }
+		
+		public function __isset($key){
+			return isset($_SESSION[$key]);
+		}
     }
 
     class RequestWrapper {
@@ -109,6 +120,13 @@
             $_REQUEST[$key] = $value;
             return $value;
         }
+		
+		public function __isset($key){
+			return isset($_REQUEST[$key]);
+		}
+		public function getCount(){
+			return count($_REQUEST);
+		}
     }
 
     class Fitzgerald {
