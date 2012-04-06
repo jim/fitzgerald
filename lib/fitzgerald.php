@@ -46,7 +46,7 @@
                 $paramNames = array();
                 $paramValues = array();
 
-                preg_match_all('@:([a-zA-Z]+)@', $url, $paramNames, PREG_PATTERN_ORDER);                    // get param names
+                preg_match_all('@:([a-zA-Z_]+)@', $url, $paramNames, PREG_PATTERN_ORDER);                    // get param names
                 $paramNames = $paramNames[1];                                                               // we want the set of matches
                 $regexedUrl = preg_replace_callback('@:[a-zA-Z_\-]+@', array($this, 'regexValue'), $url);     // replace param with regex capture
                 if (preg_match('@^' . $regexedUrl . '$@', $requestUri, $paramValues)){                      // determine match and get param values
@@ -83,6 +83,13 @@
             $this->subject[$key] = $value;
             return $value;
         }
+
+		public function __isset($key){
+			return isset($this->subject[$key]) && ( is_array($this->subject[$key]) || strlen($this->subject[$key]) > 0  );
+		}
+		public function getCount(){
+			return count($this->subject);
+		}
     }
 
     class SessionWrapper {
@@ -132,6 +139,10 @@
             $_SESSION[$key] = $value;
             return $value;
         }
+		
+		public function __isset($key){
+			return isset($_SESSION[$key]);
+		}
     }
 
     class RequestWrapper {
@@ -145,6 +156,13 @@
             $_REQUEST[$key] = $value;
             return $value;
         }
+		
+		public function __isset($key){
+			return isset($_REQUEST[$key]);
+		}
+		public function getCount(){
+			return count($_REQUEST);
+		}
     }
 
     class Fitzgerald {
