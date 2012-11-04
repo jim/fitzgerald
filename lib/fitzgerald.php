@@ -140,9 +140,9 @@
             return $value;
         }
 		
-		public function __isset($key){
-			return isset($_SESSION[$key]);
-		}
+	public function __isset($key){
+		return isset($_SESSION[$key]);
+	}
     }
 
     class RequestWrapper {
@@ -167,7 +167,7 @@
 
     class Fitzgerald {
 
-        private $mappings = array(), $before_filters = Array(), $after_filters = Array();
+        private $mappings = array(), $before_filters = array(), $after_filters = array();
         protected $options;
         protected $session;
         protected $request;
