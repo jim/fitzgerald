@@ -1,1 +1,0 @@
-<p class="error">Sorry, an error occurred.</p>
